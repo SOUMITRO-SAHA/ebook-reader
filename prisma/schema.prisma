@@ -12,14 +12,16 @@ datasource db {
 
 // Book
 model Book {
-  id                       Int      @id @default(autoincrement())
-  name                     String   @unique
-  type                     String   @default("pdf") // .mobi, .epub, .pdf, .doc, .docx
-  coverImage               String
-  location                 String
-  finished                 Boolean  @default(false)
-  currentlyReading         Boolean  @default(false)
-  lastReadPage             String
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  type     String @default("pdf") // .mobi, .epub, .pdf, .doc, .docx
+  location String
+
+  finished         Boolean @default(false)
+  currentlyReading Boolean @default(false)
+
+  coverImage               String?
+  lastReadPage             String?
   currentChapter           Int?
   currentChaptersTotalPage Int?
   totalPages               Int?
