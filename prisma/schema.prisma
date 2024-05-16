@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Book
+model Book {
+  id                       Int      @id @default(autoincrement())
+  name                     String   @unique
+  type                     String   @default("pdf") // .mobi, .epub, .pdf, .doc, .docx
+  coverImage               String
+  location                 String
+  finished                 Boolean  @default(false)
+  currentlyReading         Boolean  @default(false)
+  lastReadPage             String
+  currentChapter           Int?
+  currentChaptersTotalPage Int?
+  totalPages               Int?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+// User State
+model UserState {
+  id                     Int  @id @default(autoincrement())
+  finishedBooks          Int  @default(0)
+  streak                 Int  @default(0)
+  averageReadingDuration Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// User Reading History
+model UserReadingHistory {
+  id              Int       @id @default(autoincrement())
+  date            DateTime  @unique
+  readPageCount   Int       @default(0)
+  readingDuration Float?
+  lastReadDate    DateTime? // For calculating the read count the day between the last read date
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Dictionaries Schema
+// e.g. -> English
+model DefaultDictionary {
+  id            Int      @id @default(autoincrement())
+  word          String
+  definition    String
+  pronunciation String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// e.g. English -> Bengali
+model OtherDictionary {
+  id            Int      @id @default(autoincrement())
+  word          String
+  definition    String
+  pronunciation String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Word {
+  id            Int      @id @default(autoincrement())
+  word          String
+  definition    String
+  pronunciation String?
+  translation   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  bookmarks Bookmark[]
+  Flashcard Flashcard[]
+  Revision  Revision[]
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  wordId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  word Word @relation(fields: [wordId], references: [id])
+}
+
+// Flashcard model
+model Flashcard {
+  id         Int       @id @default(autoincrement())
+  wordId     Int
+  difficulty String // easy, medium, hard, no idea
+  lastSeen   DateTime? // Date of last revision
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  word Word @relation(fields: [wordId], references: [id])
+}
+
+// Revision model
+model Revision {
+  id         Int    @id @default(autoincrement())
+  wordId     Int
+  difficulty String // easy, medium, hard, no idea
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  word Word @relation(fields: [wordId], references: [id])
+}
